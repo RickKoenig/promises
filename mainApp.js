@@ -86,9 +86,35 @@ function getImageName(i) {
 
 }
 
+function perspCorrectTests() {
+	console.log("start persp tests");
+	const p0x = -1;
+	const p0z = 3;
+	const p1x = 2;
+	const p1z = 4;
+	const u0 = 5;
+	const u1 = 8;
+	const steps = 8;
+	console.log(`constants: steps = ${steps}, p0 = (${p0x}, ${p0z}), p1 = (${p1x}, ${p1z})`
+		+ `, u0 = ${u0}, u1 = ${u1}`);
+	const x0 = p0x / p0z;
+	const x1 = p1x / p1z;
+	console.log(`derived constants: x0 = ${x0.toFixed(5)}, x1 = ${x1.toFixed(5)}}`);
+	for (let i = 0; i <= steps; ++i) {
+		const s = i / steps;
+		const t = s;
+		const x = x0 + s * (x1 - x0);
+		const px = 44;
+		const pz = 55;
+		const u = 66;
+		console.log(`i = ${i}, s = ${s.toFixed(5)}, t = ${t.toFixed(5)}, `
+			+ `x = ${x.toFixed(5).padStart(8)}, px = ${px.toFixed(5)}, pz = ${pz.toFixed(5)}, u = ${u.toFixed(5)}`);
+	}
+	console.log("end persp tests");
+}
+
 function run() {
 	console.log("--------------------");
-	console.log("begin async tests");
 
 	// switches
 	const doImage = false;
@@ -103,8 +129,10 @@ function run() {
 	const doBigChain = false;
 	const promiseAll = false;
 	const asyncAwait1 = false;
-	const asyncAwait2 = true;
+	const asyncAwait2 = false;
+	const perspTests = true;
 
+	console.log("begin async tests");
 	// where images go on page
 	const imgDiv = document.getElementById('images');
 
@@ -296,6 +324,11 @@ function run() {
 
 	// all done
 	console.log("done async tests");
+
+	// perspective correct textures etc.
+	if (perspTests) {
+		perspCorrectTests();
+	}
 }
 
 const brokenImage = new Image(100, 200);
