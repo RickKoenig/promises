@@ -88,6 +88,7 @@ function getImageName(i) {
 
 function perspCorrectTests() {
 	console.log("start persp tests");
+	// constants
 	const p0x = -1;
 	const p0z = 3;
 	const p1x = 2;
@@ -95,20 +96,46 @@ function perspCorrectTests() {
 	const u0 = 5;
 	const u1 = 8;
 	const steps = 8;
-	console.log(`constants: steps = ${steps}, p0 = (${p0x}, ${p0z}), p1 = (${p1x}, ${p1z})`
+	console.log(`constants: steps = ${steps}, p0xz = (${p0x}, ${p0z}), p1xz = (${p1x}, ${p1z})`
 		+ `, u0 = ${u0}, u1 = ${u1}`);
+	// derived constants
 	const x0 = p0x / p0z;
 	const x1 = p1x / p1z;
 	console.log(`derived constants: x0 = ${x0.toFixed(5)}, x1 = ${x1.toFixed(5)}}`);
+	// steps
 	for (let i = 0; i <= steps; ++i) {
 		const s = i / steps;
-		const t = s;
 		const x = x0 + s * (x1 - x0);
-		const px = 44;
-		const pz = 55;
-		const u = 66;
-		console.log(`i = ${i}, s = ${s.toFixed(5)}, t = ${t.toFixed(5)}, `
-			+ `x = ${x.toFixed(5).padStart(8)}, px = ${px.toFixed(5)}, pz = ${pz.toFixed(5)}, u = ${u.toFixed(5)}`);
+
+		//const t = (p0x - p0z * x) / (x * (p1z - p0z) - p1x + p0x);
+
+		//const t = (-p0z * s * (p1x / p1z - p0x / p0z))
+		//	/ (p0x * p1z / p0z - p1x + s * (p1x - p1x * p0z / p1z - p0x * p1z / p0z + p0x));
+
+		//const t = (-p0z * s * (p1x * p0z - p0x * p1z))
+		//	/ (p0x * p1z * p1z - p1x * p0z * p1z + s 
+		//		* (p1x *p0z * p1z - p1x * p0z * p0z - p0x * p1z * p1z + p0x * p0z * p1z));
+
+		//const c = p1x * p0z - p0x * p1z;
+		//const t = -p0z * s * c / (-p1z * c + s * (p1z * c - p0z * c));
+
+		const t = -p0z * s / (-p1z + s * (p1z - p0z));
+
+		// try this
+		//const invT = 1 / p0z + 1 / s * (1 / p1z - 1 / p0z);
+		//const t = 1 / invT;
+
+		const px = p0x + t * (p1x - p0x);
+		const pz = p0z + t * (p1z - p0z);
+		const u = u0 + t * (u1 - u0);
+
+		const ub = (u0 / p0z + s * (u1 / p1z - u0 / p0z)) / (1 / p0z + s * (1 / p1z - 1 / p0z));
+		//const ub = u0 + (-p0z * s) / (-p1z + s * (p1z - p0z)) * (u1 - u0);
+		//const ub = (-u0 * p1z - s * (p0z * u1 - p1z * u0)) / (-p1z + s * (p1z - p0z));
+
+		console.log(`i = ${i}, s = ${s.toFixed(5)}, x = ${x.toFixed(5).padStart(8)}, `
+			+ `t = ${t.toFixed(5)}, px = ${px.toFixed(5).padStart(8)}, pz = ${pz.toFixed(5)}, u = ${u.toFixed(5)}, `
+			+ `ub = ${ub.toFixed(5)}`);
 	}
 	console.log("end persp tests");
 }
