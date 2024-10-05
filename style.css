@@ -6,9 +6,9 @@ body{
 }
 
 pre{
-	margin:0;
-	text-align: center;
-	font-size: 135%;
+	margin-left: 40px;
+	text-align: left;
+	font-size: 140%;
 	overflow:hidden;
 	white-space: pre-wrap;
 }
@@ -109,4 +109,9 @@ img{
 	margin: 4px;
 	width: 100px;
 	height: 100px;
+}
+
+code{
+	font-size: 150%;
+	margin: 40px;
 }

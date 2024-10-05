@@ -83,69 +83,79 @@ function getImageName(i) {
 	const str = "take" + i.toString().padStart(4, "0");
 	const imgDir = '../sprites2/pics/';
 	return imgDir + str + '.jpg';
-
 }
 
-function perspCorrectTests() {
-	console.log("start persp tests");
-	// constants
-	const p0x = -1;
-	const p0z = 3;
-	const p1x = 2;
-	const p1z = 4;
-	const u0 = 5;
-	const u1 = 8;
-	const steps = 8;
-	console.log(`constants: steps = ${steps}, p0xz = (${p0x}, ${p0z}), p1xz = (${p1x}, ${p1z})`
-		+ `, u0 = ${u0}, u1 = ${u1}`);
-	// derived constants
-	const x0 = p0x / p0z;
-	const x1 = p1x / p1z;
-	console.log(`derived constants: x0 = ${x0.toFixed(5)}, x1 = ${x1.toFixed(5)}}`);
-	// steps
-	for (let i = 0; i <= steps; ++i) {
-		const s = i / steps;
-		const x = x0 + s * (x1 - x0);
 
-		//const t = (p0x - p0z * x) / (x * (p1z - p0z) - p1x + p0x);
+///// SOME SCRATCH /////////
 
-		//const t = (-p0z * s * (p1x / p1z - p0x / p0z))
-		//	/ (p0x * p1z / p0z - p1x + s * (p1x - p1x * p0z / p1z - p0x * p1z / p0z + p0x));
-
-		//const t = (-p0z * s * (p1x * p0z - p0x * p1z))
-		//	/ (p0x * p1z * p1z - p1x * p0z * p1z + s 
-		//		* (p1x *p0z * p1z - p1x * p0z * p0z - p0x * p1z * p1z + p0x * p0z * p1z));
-
-		//const c = p1x * p0z - p0x * p1z;
-		//const t = -p0z * s * c / (-p1z * c + s * (p1z * c - p0z * c));
-
-		const t = -p0z * s / (-p1z + s * (p1z - p0z));
-
-		// try this
-		//const invT = 1 / p0z + 1 / s * (1 / p1z - 1 / p0z);
-		//const t = 1 / invT;
-
-		const px = p0x + t * (p1x - p0x);
-		const pz = p0z + t * (p1z - p0z);
-		const u = u0 + t * (u1 - u0);
-
-		const ub = (u0 / p0z + s * (u1 / p1z - u0 / p0z)) / (1 / p0z + s * (1 / p1z - 1 / p0z));
-		//const ub = u0 + (-p0z * s) / (-p1z + s * (p1z - p0z)) * (u1 - u0);
-		//const ub = (-u0 * p1z - s * (p0z * u1 - p1z * u0)) / (-p1z + s * (p1z - p0z));
-
-		console.log(`i = ${i}, s = ${s.toFixed(5)}, x = ${x.toFixed(5).padStart(8)}, `
-			+ `t = ${t.toFixed(5)}, px = ${px.toFixed(5).padStart(8)}, pz = ${pz.toFixed(5)}, u = ${u.toFixed(5)}, `
-			+ `ub = ${ub.toFixed(5)}`);
+// some random skew functions and their names
+const skewFuns = [
+	{name: "sqrt", fun: Math.sqrt},
+	{name: "identity", fun: (x) => x},
+	{name: "square", fun: (x) => x * x},
+	{name: "fifth power", fun: (x) => x * x * x * x * x},
+	{name: "fifth root", fun: (x) => Math.pow(x, .2)},
+	{name: "exponent", fun: Math.exp},
+	{name: "ln+1", fun: (x) => Math.log(x + 1)},
+	{name: "sine", fun: Math.sin},
+	{name: "pieces", fun: (x) => {
+			const mx = 5 / 8;
+			const my = 1 / 3;
+			if (x < mx) return x * my / mx;
+			return my + (x - mx) * (1 - my) / (1 - mx);
+		}
 	}
-	console.log("end persp tests");
+];
+
+// average of skewed rands
+function calcExpectVal(skewFun, numShots, doRand) {
+	// 1  1d point for now
+	let sum = 0;
+	for (let i = 0; i < numShots; ++i) {
+		let rnd = doRand
+			? Math.random() 
+			: i / numShots;
+		rnd = skewFun(rnd);
+		sum += rnd;
+	}
+	return sum / numShots; // average
+
+	// 2d next
+
 }
+
+function scratchFun() {
+	let retStr = "";
+	const randRes = 1000000;
+	for(let skewFun of skewFuns) {
+		retStr += "\n---- fun name ---- = " + skewFun.name;
+		retStr += "\nno  Random expectVal = " + calcExpectVal(skewFun.fun, randRes, false).toFixed(6);
+		retStr += "\nyes Random expextVal = " + calcExpectVal(skewFun.fun, randRes, true).toFixed(6);
+		}
+	return retStr;
+}
+
+function scratchTests(imgDiv) {
+	console.log("start scratch tests");
+	const infoText = document.createElement("pre");
+	const scratchText = scratchFun();
+	infoText.innerHTML = scratchText;
+	console.log(scratchText);
+	imgDiv.appendChild(infoText);
+	const hr = document.createElement("hr");
+	imgDiv.appendChild(hr);
+	console.log("end scratch tests");
+}
+
+///// END SOME SCRATCH /////////
+
 
 function run() {
 	console.log("--------------------");
 
 	// switches
 	const doImage = false;
-	const doAjax = false;
+	const doAjax = true;
 	const doPDelay = false;
 	const doPImage = false;
 	const doPChain1 = false;
@@ -157,7 +167,7 @@ function run() {
 	const promiseAll = false;
 	const asyncAwait1 = false;
 	const asyncAwait2 = false;
-	const perspTests = true;
+	const doScratchTests = true;
 
 	console.log("begin async tests");
 	// where images go on page
@@ -353,8 +363,8 @@ function run() {
 	console.log("done async tests");
 
 	// perspective correct textures etc.
-	if (perspTests) {
-		perspCorrectTests();
+	if (doScratchTests) {
+		scratchTests(imgDiv);
 	}
 }
 
